@@ -1,0 +1,208 @@
+<template>
+  <div class="main-weather">
+    <h1>Aktuellt väder : BERLIN</h1>
+    <p>Senast uppdaterad: {{ lastUpdated }}</p>
+    <div v-if="loading" class="loading-message">Hämtar väder...</div>
+    <div v-else>
+      <div v-for="(value, key) in filteredWeatherData" :key="key" class="weather-info">
+        <p class="weather-label">{{ key }}</p>
+        <p class="weather-value">{{ value }}</p>
+      </div>
+    </div>
+    <button @click="updateWeather" class="update-button">Uppdatera väder</button>
+    <router-view></router-view>
+
+    <div class="weather-options">
+      <label v-for="(value, key) in translationMap" :key="key" class="option-label">
+        <input type="checkbox" v-model="selectedOptions" :value="key" class="option-checkbox">
+        <span class="option-text">{{ value }}</span>
+      </label>
+    </div>
+  </div>
+</template>
+
+<script>
+import MainWeatherComponent from './MainWeatherComponent.vue';
+
+export default {
+  components: {
+    MainWeatherComponent
+  },
+  data() {
+    return {
+      loading: true,
+      weatherData: null,
+      latestWeatherData: null,
+      lastUpdated: null,
+      translationMap: {
+        temperature: 'Temperatur',
+        precipitation: 'Nederbörd',
+        rain: 'Regn',
+        cloud_cover_low: 'Molntäckning (låga)',
+        cloud_cover_mid: 'Molntäckning (mellanliggande)',
+        cloud_cover_high: 'Molntäckning (hög)',
+        visibility: 'Sikt',
+        wind_speed_10m: 'Vindhastighet (10 m)',
+        wind_speed_80m: 'Vindhastighet (80 m)',
+        wind_speed_120m: 'Vindhastighet (120 m)',
+        uv_index: 'UV-index',
+        uv_index_clear_sky: 'UV-index (klar himmel)',
+      },
+      selectedOptions: [] 
+    };
+  },
+  computed: {
+    filteredWeatherData() {
+      if (!this.latestWeatherData) return null;
+      const filteredData = {};
+      this.selectedOptions.forEach(option => {
+        if (option in this.latestWeatherData) {
+          filteredData[this.translationMap[option]] = this.latestWeatherData[option];
+        }
+      });
+      return filteredData;
+    }
+  },
+  mounted() {
+    this.getWeatherData();
+  },
+  methods: {
+    async getWeatherData() {
+      try {
+        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,precipitation,rain,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,wind_speed_10m,wind_speed_80m,wind_speed_120m,uv_index,uv_index_clear_sky,is_day');
+        if (response.ok) {
+          const weatherData = await response.json();
+          this.weatherData = weatherData;
+          this.latestWeatherData = this.getLatestWeatherData(weatherData.hourly);
+          this.updateLastUpdated();
+        } else {
+          console.error('Fetch error:', response.statusText);
+        }
+        this.loading = false;
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    },
+    getLatestWeatherData(hourlyData) {
+      const latestTimeIndex = hourlyData.time.length - 1;
+      return {
+        temperature: hourlyData.temperature_2m[latestTimeIndex],
+        precipitation: hourlyData.precipitation[latestTimeIndex],
+        rain: hourlyData.rain[latestTimeIndex],
+        cloud_cover_low: hourlyData.cloud_cover_low[latestTimeIndex],
+        cloud_cover_mid: hourlyData.cloud_cover_mid[latestTimeIndex],
+        cloud_cover_high: hourlyData.cloud_cover_high[latestTimeIndex],
+        visibility: hourlyData.visibility[latestTimeIndex],
+        wind_speed_10m: hourlyData.wind_speed_10m[latestTimeIndex],
+        wind_speed_80m: hourlyData.wind_speed_80m[latestTimeIndex],
+        wind_speed_120m: hourlyData.wind_speed_120m[latestTimeIndex],
+        uv_index: hourlyData.uv_index[latestTimeIndex],
+        uv_index_clear_sky: hourlyData.uv_index_clear_sky[latestTimeIndex]
+      };
+    },
+    updateWeather() {
+      this.loading = true;
+      this.getWeatherData();
+    },
+    updateLastUpdated() {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const year = now.getFullYear();
+
+      this.lastUpdated = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.main-weather {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #000000;
+  color: white;
+  border-radius: 20px;
+  padding: 2%;
+
+}
+
+.loading-message {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  color: rgb(254, 6, 6);
+}
+
+.weather-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  color: #f9f9f9;
+
+}
+
+.weather-label {
+  font-weight: bold;
+  color: #f9f9f9;
+}
+
+.update-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #e74c3c; 
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; 
+}
+
+.update-button:hover {
+  background-color: #c0392b; 
+}
+
+.nav-link {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 1rem;
+  text-decoration: none;
+  color: #faeded;
+  border-radius: 4px;
+  transition: background-color 0.3s ease; 
+}
+
+.nav-link:hover {
+  background-color: #716e6e; 
+}
+
+.weather-options {
+  margin-top: 20px;
+  color: #f9f9f9;
+
+}
+
+.option-label {
+  margin-right: 10px;
+  color: #f9f9f9;
+
+}
+
+.option-checkbox {
+  margin-right: 5px;
+  color: #f9f9f9;
+
+}
+
+.option-text {
+  font-size: 0.9rem;
+  color: #f9f9f9;
+
+}
+</style>
+

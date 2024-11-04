@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainWeatherComponent from './components/MainWeatherComponent.vue';
-import WeatherItemComponent from './components/WeatherItemComponent.vue';
+import WeatherTodayComponent from './components/WeatherTodayComponent.vue';
 
 const routes = [
   {
@@ -11,7 +11,7 @@ const routes = [
   {
     path: '/everything',
     name: 'Everything',
-    component: WeatherItemComponent
+    component: WeatherTodayComponent
   }
 ];
 

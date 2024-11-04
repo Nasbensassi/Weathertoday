@@ -22,47 +22,59 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$sidebar-bg: #d51601; 
+$sidebar-text-color: #fff; 
+$sidebar-hover-bg: #a40f00; 
+$sidebar-width: 200px; 
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 200px;
-  height: 50%;
-  background-color: #d51601;
-  color: #fff;
+  width: $sidebar-width;
+  height: 100vh; 
+  background-color: $sidebar-bg;
+  color: $sidebar-text-color;
   padding: 20px;
-  box-sizing: border-box; 
-}
+  box-sizing: border-box;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3); 
 
-.sidebar-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
+  .sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
 
-.sidebar-header h2 {
-  font-size: 24px;
-}
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: lighten($sidebar-text-color, 10%);
+    }
+  }
 
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-}
+  .sidebar-nav {
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
 
-.sidebar-nav li {
-  margin-bottom: 10px;
-}
+      li {
+        margin-bottom: 10px;
+      }
+    }
 
-.nav-link {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
+    .nav-link {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: $sidebar-text-color;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      font-size: 1rem;
 
-.nav-link:hover {
-  background-color: #000000; 
+      &:hover {
+        background-color: $sidebar-hover-bg;
+      }
+    }
+  }
 }
 </style>

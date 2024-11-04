@@ -1,5 +1,5 @@
 <template>
-  <div class="welcome-page">
+  <div class="main-weather-component">
     <h1>Välkommen till Väderappen</h1>
     <p>Upptäck dagens väder och förväntad prognos!</p>
     <router-link to="/everything" class="weather-today-btn">Väder idag</router-link>
@@ -8,30 +8,18 @@
 
 <script>
 export default {
-  name: 'WelcomePage'
+  name: 'MainWeatherComponent'
 };
 </script>
 
 <style scoped>
-.welcome-page {
+.main-weather-component {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  text-align: center;
-  background-color: #f9f9f9;
-}
-
-.welcome-page h1 {
-  font-size: 36px;
-  color: #333;
-}
-
-.welcome-page p {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 20px;
+  height: 100vh; 
+  background-color: #f9f9f9; 
 }
 
 .weather-today-btn {
@@ -47,9 +35,5 @@ export default {
 
 .weather-today-btn:hover {
   background-color: #45a049;
-}
-
-.weather-today-btn:active {
-  background-color: #398439;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="main-weather">
-    <h1>Aktuellt väder : BERLIN</h1>
+  <div class="weather-item">
+    <h2>Väder för {{ cityName }}</h2>
     <p>Senast uppdaterad: {{ lastUpdated }}</p>
     <div v-if="loading" class="loading-message">Hämtar väder...</div>
     <div v-else>
@@ -8,9 +8,14 @@
         <p class="weather-label">{{ key }}</p>
         <p class="weather-value">{{ value }}</p>
       </div>
+      <div v-if="isGoodWeather" class="good-weather-message">
+        <p>Det är ett bra väder idag!</p>
+      </div>
+      <div v-else>
+        <p>Vädret är inte så bra idag.</p>
+      </div>
     </div>
     <button @click="updateWeather" class="update-button">Uppdatera väder</button>
-    <router-view></router-view>
 
     <div class="weather-options">
       <label v-for="(value, key) in translationMap" :key="key" class="option-label">
@@ -22,11 +27,13 @@
 </template>
 
 <script>
-import MainWeatherComponent from './MainWeatherComponent.vue';
-
 export default {
-  components: {
-    MainWeatherComponent
+  name: 'WeatherItemComponent',
+  props: {
+    cityName: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {
@@ -61,6 +68,14 @@ export default {
         }
       });
       return filteredData;
+    },
+    isGoodWeather() {
+      if (!this.latestWeatherData) return false;
+      const temperature = this.latestWeatherData.temperature;
+      const precipitation = this.latestWeatherData.precipitation;
+
+      
+      return temperature > 20 && precipitation === 0;
     }
   },
   mounted() {
@@ -69,7 +84,7 @@ export default {
   methods: {
     async getWeatherData() {
       try {
-        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,precipitation,rain,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,wind_speed_10m,wind_speed_80m,wind_speed_120m,uv_index,uv_index_clear_sky,is_day');
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,precipitation,rain,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,wind_speed_10m,wind_speed_80m,wind_speed_120m,uv_index,uv_index_clear_sky,is_day`);
         if (response.ok) {
           const weatherData = await response.json();
           this.weatherData = weatherData;
@@ -120,89 +135,87 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.main-weather {
+$primary-bg: #1e1e1e; 
+$primary-color: white; 
+$loading-color: rgb(254, 6, 6); 
+$button-bg: #e74c3c; 
+$button-hover-bg: #c0392b; 
+$weather-info-color: #f9f9f9; 
+.weather-item {
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #000000;
-  color: white;
+  background-color: $primary-bg;
+  color: $primary-color;
   border-radius: 20px;
   padding: 2%;
-
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  max-width: 400px; 
+  margin: 0 auto; 
+  position: relative; 
 }
 
 .loading-message {
   font-size: 1.2rem;
   margin-top: 20px;
-  color: rgb(254, 6, 6);
+  color: $loading-color;
+  font-weight: bold; 
 }
 
 .weather-info {
   display: flex;
   justify-content: space-between;
   margin: 10px 0;
-  color: #f9f9f9;
+  color: $weather-info-color;
 
-}
+  .weather-label {
+    font-weight: bold;
+    color: $weather-info-color;
+    font-size: 1.1rem; 
+  }
 
-.weather-label {
-  font-weight: bold;
-  color: #f9f9f9;
+  .weather-value {
+    font-size: 1.1rem; 
+    color: lighten($weather-info-color, 30%); 
+  }
 }
 
 .update-button {
   margin-top: 20px;
   padding: 10px 20px;
   font-size: 1rem;
-  background-color: #e74c3c; 
-  color: white;
+  background-color: $button-bg;
+  color: $primary-color;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease; 
-}
+  transition: background-color 0.3s ease;
 
-.update-button:hover {
-  background-color: #c0392b; 
-}
-
-.nav-link {
-  margin-top: 20px;
-  display: inline-block;
-  padding: 10px 20px;
-  font-size: 1rem;
-  text-decoration: none;
-  color: #faeded;
-  border-radius: 4px;
-  transition: background-color 0.3s ease; 
-}
-
-.nav-link:hover {
-  background-color: #716e6e; 
+  &:hover {
+    background-color: $button-hover-bg; 
+  }
 }
 
 .weather-options {
   margin-top: 20px;
-  color: #f9f9f9;
+  color: $weather-info-color;
 
+  .option-label {
+    margin-right: 10px;
+    color: $weather-info-color;
+  }
+
+  .option-checkbox {
+    margin-right: 5px;
+  }
+
+  .option-text {
+    font-size: 0.9rem;
+    color: $weather-info-color;
+  }
 }
 
-.option-label {
-  margin-right: 10px;
-  color: #f9f9f9;
-
-}
-
-.option-checkbox {
-  margin-right: 5px;
-  color: #f9f9f9;
-
-}
-
-.option-text {
-  font-size: 0.9rem;
-  color: #f9f9f9;
-
+.good-weather-message {
+  color: green; 
+  font-weight: bold;
+  margin-top: 10px;
 }
 </style>
-

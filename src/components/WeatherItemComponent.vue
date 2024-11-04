@@ -1,21 +1,24 @@
 <template>
-  <div class="weather-item">
+  <div :class="{ 'good-weather': isGoodWeather }" class="weather-item">
     <h2>Väder för {{ cityName }}</h2>
     <p>Senast uppdaterad: {{ lastUpdated }}</p>
     <div v-if="loading" class="loading-message">Hämtar väder...</div>
     <div v-else>
       <div v-for="(value, key) in filteredWeatherData" :key="key" class="weather-info">
         <p class="weather-label">{{ key }}</p>
-        <p class="weather-value">{{ value }}</p>
+        <p class="weather-value" :title="value">{{ value }}</p>
       </div>
-      <div v-if="isGoodWeather" class="good-weather-message">
-        <p>Det är ett bra väder idag!</p>
-      </div>
-      <div v-else>
-        <p>Vädret är inte så bra idag.</p>
-      </div>
+      <div :class="{ 'good-weather': isGoodWeather, 'bad-weather': !isGoodWeather }" class="weather-status">
+  <div v-if="isGoodWeather" class="good-weather-message">
+    <p>Det är ett bra väder idag!</p>
+  </div>
+  <div v-else>
+    <p>Vädret är inte så bra idag.</p>
+  </div>
+</div>
+
     </div>
-    <button @click="updateWeather" class="update-button">Uppdatera väder</button>
+    <button @click="updateWeather" class="update-button" :aria-label="'Uppdatera väder för ' + cityName">Uppdatera väder</button>
 
     <div class="weather-options">
       <label v-for="(value, key) in translationMap" :key="key" class="option-label">
@@ -153,6 +156,16 @@ $weather-info-color: #f9f9f9;
   position: relative; 
 }
 
+.good-weather {
+  background-color: #d4edda; 
+  color: green;
+}
+
+.bad-weather {
+  background-color: #d4edda;
+  color:#e74c3c 
+
+}
 .loading-message {
   font-size: 1.2rem;
   margin-top: 20px;
